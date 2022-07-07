@@ -10,6 +10,24 @@ export default () => {
     defaultRelaxTime = parseInt(localStorage.getItem("relax") ?? "20");
   }
 
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js").then(
+          (registration) => {
+            console.log(
+              "Service Worker registration successful with scope: ",
+              registration.scope,
+            );
+          },
+          (err) => {
+            console.log("Service Worker registration failed: ", err);
+          },
+        );
+      });
+    }
+  }, []);
+
   const startIcon = "https://i.imgur.com/uxjKHdL.png";
   const endIcon = "https://i.imgur.com/kzzntlY.png";
 
@@ -46,16 +64,38 @@ export default () => {
     if (isEnabled) {
       if (focus === "screen" && time === 0) {
         setFocus("relax");
-        new Notification("Relax time start", {
-          body: `Will conclude in ${relaxTime} seconds`,
-          icon: endIcon,
-        });
+        try {
+          new Notification("Relax time start", {
+            body: `Will conclude in ${relaxTime} seconds`,
+            icon: endIcon,
+          });
+        } catch (e) {
+          navigator.serviceWorker.ready.then((registration) => {
+            registration.showNotification(focus, {
+              body: focus,
+              icon: "android/android-launchericon-192-192.png",
+              vibrate: [200, 100, 200, 100, 200, 100, 200],
+              tag: `Time to focus for ${time}`,
+            });
+          });
+        }
       } else if (focus === "relax" && time === 0) {
         setFocus("screen");
-        new Notification("Screen time start", {
-          body: `Will conclude in ${screenTime / 60} minutes`,
-          icon: startIcon,
-        });
+        try {
+          new Notification("Screen time start", {
+            body: `Will conclude in ${screenTime / 60} minutes`,
+            icon: startIcon,
+          });
+        } catch (e) {
+          navigator.serviceWorker.ready.then((registration) => {
+            registration.showNotification(focus, {
+              body: focus,
+              icon: "android/android-launchericon-192-192.png",
+              vibrate: [200, 100, 200, 100, 200, 100, 200],
+              tag: `Time to focus for ${time}`,
+            });
+          });
+        }
       }
     }
   }, [time]);
