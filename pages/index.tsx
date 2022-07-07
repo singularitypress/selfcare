@@ -2,8 +2,8 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 
 export default () => {
-  let defaultScreenTime: number;
-  let defaultRelaxTime: number;
+  let defaultScreenTime: number = 1200;
+  let defaultRelaxTime: number = 20;
 
   if (typeof window !== "undefined") {
     defaultScreenTime = parseInt(localStorage.getItem("time") ?? "1200");
@@ -115,6 +115,9 @@ export default () => {
               }
             >
               {`${focus} -> ${time}`}
+              <div>
+                {focus === "relax" && "Remember to hydrate! Drink water."}
+              </div>
             </h1>
           ) : (
             <form
@@ -122,7 +125,7 @@ export default () => {
               className="flex flex-col space-y-4 pt-4"
             >
               {unsavedChanges && (
-                <div className="w-full p-6 border-solid border-2 rounded-md border-black">
+                <div className="w-full p-6 border-solid border-4 rounded-lg border-black">
                   <strong>
                     Unsaved changes, click &quot;Save&quot; to keep your changes
                   </strong>
